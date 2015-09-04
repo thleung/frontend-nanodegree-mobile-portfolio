@@ -439,7 +439,8 @@ var resizePizzas = function(size) {
 
     //var randomPizzas = document.querySelectorAll(".randomPizzaContainer");
     var randomPizzas = document.getElementsByClassName('randomPizzaContainer');
-    for (var i = 0; i < randomPizzas.length; i++) {
+    var numberPizza = randomPizzas.length
+    for (var i = 0; i < numberPizza; i++) {
       randomPizzas[i].style.width = newWidth + "%";
     }
   }
@@ -456,8 +457,8 @@ var resizePizzas = function(size) {
 window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
+var pizzasDiv = document.getElementById("randomPizzas");
 for (var i = 2; i < 100; i++) {
-  var pizzasDiv = document.getElementById("randomPizzas");
   pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
 
@@ -489,30 +490,25 @@ function updatePositions(type) {
   frame++;
   window.performance.mark("mark_start_frame");
 
-  //var items = document.querySelectorAll('.mover');
   var items = document.getElementsByClassName('mover');
   var scroll = [];
   var phase;
+  var scrollPos;
   // scrollTop values have 5 constant values each time scrolling
-  //var scrollValue = document.body.scrollTop / 1250;
   // First time through updatePosition, scrollPos will be zero due to type != s
   if (type === 's') {
-    var scrollPos = (document.body.scrollTop / 1250);
+    scrollPos = (document.body.scrollTop / 1250);
   } else {
-    var scrollPos = 0;
+    scrollPos = 0;
   }
   for (var j =0; j<5; j++) {
     scroll[j] = Math.sin(scrollPos + (j % 5));
   }
+  var movePizza;
   for (var i = 0; i < items.length; i++) {
-    //console.log(scroll[i % 5]);
     phase = scroll[i % 5];
-    items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
-    //var translateSize = items[i].basicLeft + 100 * phase + 'px';
-    //items[i].style.transform = 'translateX(translateSize)';
-
-    //console.log(items[i].style.transform);
-    //items[i].style.transform = 'translateX(100px)';
+    movePizza = 100 * phase;
+    items[i].style.transform = "translateX("+movePizza+"px)";
   }
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
@@ -526,7 +522,6 @@ function updatePositions(type) {
 }
 
 // runs updatePositions on scroll
-//window.addEventListener('scroll', updatePositions);
 window.addEventListener('scroll', function() {
   updatePositions('s');});
 // Generates the sliding pizzas when the page loads.
@@ -545,10 +540,11 @@ document.addEventListener('DOMContentLoaded', function() {
     elem.style.height = "100px";
     elem.style.width = "73.333px";
     elem.basicLeft = (i % cols) * s;
+    // this needs to be set so when translateX is used, it knows where X position is set at
+    elem.style.left = (i % cols) * s + "px";
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
     document.querySelector("#movingPizzas1").appendChild(elem);
   }
-  //window.requestAnimationFrame(updatePositions);
   window.requestAnimationFrame( function() {
     updatePositions('1');
   });
