@@ -437,7 +437,8 @@ var resizePizzas = function(size) {
         console.log("bug in sizeSwitcher");
     }
 
-    var randomPizzas = document.querySelectorAll(".randomPizzaContainer");
+    //var randomPizzas = document.querySelectorAll(".randomPizzaContainer");
+    var randomPizzas = document.getElementsByClassName('randomPizzaContainer');
     for (var i = 0; i < randomPizzas.length; i++) {
       randomPizzas[i].style.width = newWidth + "%";
     }
@@ -484,21 +485,34 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
 // Moves the sliding background pizzas based on scroll position
-function updatePositions() {
+function updatePositions(type) {
   frame++;
   window.performance.mark("mark_start_frame");
 
-  var items = document.querySelectorAll('.mover');
+  //var items = document.querySelectorAll('.mover');
+  var items = document.getElementsByClassName('mover');
   var scroll = [];
+  var phase;
   // scrollTop values have 5 constant values each time scrolling
-  var scrollValue = document.body.scrollTop / 1250;
+  //var scrollValue = document.body.scrollTop / 1250;
+  // First time through updatePosition, scrollPos will be zero due to type != s
+  if (type === 's') {
+    var scrollPos = (document.body.scrollTop / 1250);
+  } else {
+    var scrollPos = 0;
+  }
   for (var j =0; j<5; j++) {
-    scroll[j] = Math.sin(scrollValue + (j % 5));
+    scroll[j] = Math.sin(scrollPos + (j % 5));
   }
   for (var i = 0; i < items.length; i++) {
     //console.log(scroll[i % 5]);
-    var phase = scroll[i % 5];
+    phase = scroll[i % 5];
     items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
+    //var translateSize = items[i].basicLeft + 100 * phase + 'px';
+    //items[i].style.transform = 'translateX(translateSize)';
+
+    //console.log(items[i].style.transform);
+    //items[i].style.transform = 'translateX(100px)';
   }
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
@@ -512,13 +526,19 @@ function updatePositions() {
 }
 
 // runs updatePositions on scroll
-window.addEventListener('scroll', updatePositions);
-
+//window.addEventListener('scroll', updatePositions);
+window.addEventListener('scroll', function() {
+  updatePositions('s');});
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
   var cols = 8;
   var s = 256;
-  for (var i = 0; i < 200; i++) {
+  console.log("height: " + window.screen.height);
+  console.log("width: " + window.screen.width);
+  var rows = window.screen.height / s;
+  var visiblePizza = Math.floor(cols * rows);
+  console.log("visible Pizzas: " + visiblePizza);
+  for (var i = 0; i < visiblePizza; i++) {
     var elem = document.createElement('img');
     elem.className = 'mover';
     elem.src = "images/pizza.png";
@@ -528,5 +548,8 @@ document.addEventListener('DOMContentLoaded', function() {
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
     document.querySelector("#movingPizzas1").appendChild(elem);
   }
-  window.requestAnimationFrame(updatePositions);
+  //window.requestAnimationFrame(updatePositions);
+  window.requestAnimationFrame( function() {
+    updatePositions('1');
+  });
 });
