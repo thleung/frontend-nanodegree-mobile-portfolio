@@ -253,7 +253,7 @@ var makeRandomPizza = function() {
 };
 
 // returns a DOM element for each pizza
-var pizzaElementGenerator = function(i,img) {
+  var pizzaElementGenerator = function(i) {
   var pizzaContainer,             // contains pizza title, image and list of ingredients
       pizzaImageContainer,        // contains the pizza image
       pizzaImage,                 // the pizza image itself
@@ -272,7 +272,7 @@ var pizzaElementGenerator = function(i,img) {
   pizzaContainer.id = "pizza" + i;                // gives each pizza element a unique id
   pizzaImageContainer.classList.add("col-md-6");
 
-  pizzaImage.src = img;
+  pizzaImage.src = pizzaImg;
   pizzaImage.classList.add("img-responsive");
   pizzaImageContainer.appendChild(pizzaImage);
   pizzaContainer.appendChild(pizzaImageContainer);
@@ -314,7 +314,7 @@ var resizePizzas = function(size) {
 
   changeSliderLabel(size);
 
-  // Iterates through pizza elements on the page and changes their widths
+  // Iterates through pizza elements on the page and changes their width percentage
   function changePizzaSizes(size) {
     switch(size) {
       case "1":
@@ -352,11 +352,8 @@ window.performance.mark("mark_start_generating"); // collect timing data
 // This for-loop actually creates and appends all of the pizzas when the page loads
 var pizzasDiv = document.getElementById("randomPizzas");
 
-for (var i = 0; i < 100; i++) {
-  pizzasDiv.appendChild(pizzaElementGenerator(i,pizzaImg));
-  /*window.requestAnimationFrame( function() {
-    pizzasDiv.appendChild(pizzaElementGenerator(i));
-  });*/
+for (var i = 0; i < 20; i++) {
+  pizzasDiv.appendChild(pizzaElementGenerator(i));
 }
 
 // User Timing API again. These measurements tell you how long it took to generate the initial pizzas
@@ -387,22 +384,27 @@ function updatePositions(type) {
   frame++;
   window.performance.mark("mark_start_frame");
 
+  // Using getElementsByClassName instead of querySelectorAll reduces scripting time
   var items = document.getElementsByClassName('mover');
   var scroll = [];
   var phase;
   var scrollPos;
-  // scrollTop values have 5 constant values each time scrolling
+  
   // First time through updatePosition, scrollPos will be zero due to type != s
   if (type === 's') {
     scrollPos = (document.body.scrollTop / 1250);
   } else {
     scrollPos = 0;
   }
+  // scrollTop values have 5 constant values each time scrolling, so store the values in array
   for (var j =0; j<5; j++) {
     scroll[j] = Math.sin(scrollPos + (j % 5));
   }
+
   var movePizza;
   var itemLength = items.length;
+  /*  This for loop will shift the positions of the pizzas to make it move left/right.
+      Instead of using style.left, style.transforum = translateX is better for it avoids layout */
   for (var i = 0; i < itemLength; i++) {
     phase = scroll[i % 5];
     movePizza = 100 * phase;
@@ -419,20 +421,23 @@ function updatePositions(type) {
   }
 }
 
-// runs updatePositions on scroll
-/*window.addEventListener('scroll', function() {
-  updatePositions('s');});*/
-
+// On scroll, updatePosition is run through the requestAnimationFrame
 window.addEventListener('scroll', function() {
   window.requestAnimationFrame( function() {
     updatePositions('s');});});
 
+// On loading of website or refresh, sets scroll position to top of webpage
+window.onbeforeunload = function(){
+  window.scrollTo(0,0);
+}
+
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
+  window.scrollTo(0, 0); // Set window position to zero when website first loaded
   var cols = 8;
   var s = 256;
   var rows = window.screen.height / s;
-  var visiblePizza = Math.floor(cols * rows);
+  var visiblePizza = Math.floor(cols * rows); // Only shows the pizzas visible on the screen
   for (var i = 0; i < visiblePizza; i++) {
     var elem = document.createElement('img');
     elem.className = 'mover';
