@@ -9,6 +9,8 @@
 
     <!-- Hmm, what is the impact of web fonts on speed? Measure it... -->
     <!--<link href="//fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">-->
+
+    <!-- Copied fonts to local directory, now directly accessing instead of online -->
     <script>
       var font = new FontFace("Open Sans", "url(/fonts/open_sans_400.ttf)", {
         style: 'normal', unicodeRange: 'U+000-5FF', weight: '400'
@@ -22,6 +24,8 @@
 
     <!--<link href="css/style.css" rel="stylesheet">-->
     <!--<link href="css/print.css" rel="stylesheet">-->
+
+    <!-- Inlined both style.css and print.css -->
     <style>
       @media print {
         * { background: transparent !important; color: black !important; text-shadow: none !important; filter:none !important; -ms-filter: none !important; }
